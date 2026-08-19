@@ -1,3 +1,14 @@
 node_modules
-out-minified
-out-not-minified
+dist
+dist-*
+out-minified/
+out-not-minified/
+out-capture-*
+cap*/
+t[A-Z]/
+dbg/
+diffruns/
+rspack-*/src/
+rspack-*/dist*
+real-input.js
+input-*.js

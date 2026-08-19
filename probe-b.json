@@ -1,0 +1,53 @@
+{
+  "compilationHash": "4d398bc9839a700d",
+  "chunks": [
+    {
+      "name": "main",
+      "id": 889,
+      "hash": "b990f08706d88cd9",
+      "renderedHash": "b990f08706d88cd9",
+      "contentHash": {
+        "javascript": "848aa3cb4093ddc3",
+        "css": "86f2f54e6be77005"
+      },
+      "moduleCount": 1,
+      "runtime": "[object Set]",
+      "moduleHashes": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/background.js??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:background|eb9021c2d2e2315a :: 9b558f68121f5039"
+      ],
+      "codegen": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/background.js??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:background|eb9021c2d2e2315a :: <err> Value is none of these types `String`, `Array<T>`, "
+      ],
+      "details": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/background.js??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:background|eb9021c2d2e2315a :: <err> Value is none of these types `String`, `Array<T>`, "
+      ],
+      "modules": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/background.js??ruleSet[1].rules[2].oneOf[3].oneOf[0].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:background|eb9021c2d2e2315a"
+      ]
+    },
+    {
+      "name": "main__main-thread",
+      "id": 131,
+      "hash": "c41997a3f9a78bf4",
+      "renderedHash": "c41997a3f9a78bf4",
+      "contentHash": {
+        "javascript": "9927060b402b13d2",
+        "css": "1db3b921850b3215"
+      },
+      "moduleCount": 1,
+      "runtime": "[object Set]",
+      "moduleHashes": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/main-thread.js??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:main-thread|4069ca76ffaf09d4 :: 0e80230371c74b51"
+      ],
+      "codegen": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/main-thread.js??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:main-thread|4069ca76ffaf09d4 :: <err> Value is none of these types `String`, `Array<T>`, "
+      ],
+      "details": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/main-thread.js??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:main-thread|4069ca76ffaf09d4 :: <err> Value is none of these types `String`, `Array<T>`, "
+      ],
+      "modules": [
+        "javascript/auto|builtin:swc-loader??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[0]!/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react-webpack-plugin/lib/loaders/main-thread.js??ruleSet[1].rules[2].oneOf[3].oneOf[1].use[1]!/Users/bytedance/projects/rspeedy-minify-repro/src/index.tsx|react:main-thread|4069ca76ffaf09d4"
+      ]
+    }
+  ]
+}

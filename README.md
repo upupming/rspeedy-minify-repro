@@ -88,23 +88,76 @@ the minifier is deterministic for this input
 
 The same holds across processes and when two files are minified concurrently.
 
-`capture.mjs` runs a full build with a plugin that writes every JavaScript asset
-just before the minimize stage, so two builds can be compared on what the
-minifier is given rather than on what it produces.
+So the minifier is not where this starts.
+
+`capture.mjs` runs a full build with a plugin that records, for every chunk,
+`chunk.hash`, its content hashes, and for every module its identifier, its
+module hash, the sha1 of its generated code, its source map, its module id and
+its used and provided exports.
 
 ```sh
 node capture.mjs out-capture-a
 node capture.mjs out-capture-b
 ```
 
-Comparing a pair of runs whose output differs, with the two per-build
-identifiers normalized:
+Comparing a pair of runs whose output differs:
 
 ```
-run1  before minify=5a1ac632c8  after minify=4ad8e0d494
-run2  before minify=5a1ac632c8  after minify=f11f03ccdf
+chunk main: hash c1fdcc95d02c4215 -> b6aabad919890145, modules 108
+   modules with different hash: 1 of 108
+   module set identical: True
+   - @lynx-js/react/runtime/lib/snapshot/snapshot/definition.js|react:background
+       hash: 47f15befae412641 != 1a320ffd61815515
+       codegen same: True | details same: True
 ```
 
-The input is the same and the output is not. Called on its own the minifier is
-deterministic for that same input, so the difference comes from how the build
-invokes it, not from the minifier itself.
+One module out of 108 hashes differently. Its generated code, its source map,
+its module id, its used and provided exports and its runtime requirements are
+all identical between the two builds — only the hash rspack computes for it
+moves. That hash feeds `chunk.hash`, which feeds the content hash in the
+filename and the debug metadata release, which is embedded in the chunk. With
+minification on, that one changed string then permutes every mangled name,
+because the mangler orders its short names by character frequency over the
+whole source.
+
+The modules that move are always in the same cluster — `snapshot/snapshot.js`,
+`snapshot/backgroundSnapshot.js` and `snapshot/definition.js` — which are linked
+by multi-hop re-exports.
+
+It is a race, not a per-process seed. On an idle machine 25 consecutive builds
+agree; under CPU load (`for i in $(seq 1 10); do yes > /dev/null & done`) about
+one build in seven disagrees.
+
+Ruled out, each by measurement rather than by argument:
+
+- the minifier (deterministic on this exact input, across processes)
+- the debug metadata plugin (disabled, still diverges)
+- a persistent cache (there is none in this project)
+- scope hoisting (with `concatenateModules: false` it diverges *more* often,
+  because 108 separate modules give more chances than one concatenated one)
+- any single Lynx plugin (dropping each one still diverges; dropping five at
+  once stops it, but that also shortens the build, so it reads as pressure
+  rather than cause)
+
+## Which input to the hash moves
+
+`ChunkGraph::get_module_graph_hash` hashes three things: the module's own
+`get_module_graph_hash_without_connections`, the `active_state` of each of its
+outgoing connections, and, for each module it connects to, that module's
+`get_exports_type` and `get_module_graph_hash_without_connections`.
+
+An importer's hash therefore contains its dependency's *without_connections*
+part. So if `without_connections` moved for any module, every module importing
+it would move too. `definition.js` is imported by eight other modules and none
+of them moved — exactly one module out of 108 did.
+
+That leaves the per-connection values: `active_state`, or `get_exports_type` of
+a connected module. Both are resolved through `ModuleGraphCacheArtifact`, a
+memoization cache, and `active_state` is three-valued (`true`, `false`,
+`TransitiveOnly`) — a flip between `true` and `TransitiveOnly` changes the hash
+while still emitting the same code, which is what is observed.
+
+Not reproduced with rspack alone. Four shapes were tried under the same load —
+a single large module, two entries, a barrel of re-exports across two layers,
+and 4501 generated modules in two layers with `builtin:swc-loader` — all stable
+over 25 to 40 builds each.

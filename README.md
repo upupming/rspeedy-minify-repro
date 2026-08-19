@@ -1,8 +1,8 @@
 # Rspeedy production builds are not reproducible
 
 Building the same source twice with `@lynx-js/rspeedy` in production mode can
-produce different bundles. The difference is in the names the minifier mangles
-to, which then changes the chunk content hash.
+produce different JavaScript. The minifier mangles names differently between
+builds, which then changes the chunk content hash.
 
 Not reproducible means long-term caching, CDN revalidation and any
 build-artifact integrity check see a new artifact for an unchanged source.
@@ -18,35 +18,53 @@ build-artifact integrity check see a new artifact for an unchanged source.
 ```sh
 npm install
 node repro.mjs             # production build, minified
-node repro.mjs --no-minify # same build with minification turned off
+node repro.mjs --no-minify # the same build with minification turned off
 ```
 
 `RUNS` sets the number of builds, default 5. Each build runs in its own
-process, into its own output directory.
+process, into its own output directory, with `DEBUG=rspeedy` so that the
+intermediate JavaScript is written next to the bundle instead of being encoded
+into it and deleted.
+
+Two values are minted per build and are not derived from the source: the chunk
+file names itself, so its own content hash appears in its content, and the
+debug metadata release. Both are normalized before comparing, so a reported
+difference means the generated code differs.
 
 ## What it shows
 
-Eight runs, minified:
+Ten runs, minified:
 
 ```
-distinct bundles: 3 of 8
+distinct background.js: 2 of 10
 NOT reproducible
 
-first difference outside the chunk name, at byte 17389:
-  run 0: ":null:\"__ref\"in e?e:null:null}function e8(){e2.hasPending()&&e2.flush(e=>new e1("
-  run 1: ":null:\"__ref\"in e?e:null:null}function e6(){e2.hasPending()&&e2.flush(e=>new e1("
+first difference at byte 17541:
+  run 0: ":null:\"__ref\"in e?e:null:null}function e5(){e3.hasPending()&&e3.flush(e=>new e2("
+  run 2: ":null:\"__ref\"in e?e:null:null}function e8(){e3.hasPending()&&e3.flush(e=>new e2("
 ```
 
-The same function comes out as `e8` in one build and `e6` in another. Nothing
-else differs.
+The same function comes out as `e5` in one build and `e8` in another.
 
-Eight runs with `--no-minify`:
+Ten runs with `--no-minify`:
 
 ```
-distinct bundles: 1 of 8
+distinct background.js: 1 of 10
 reproducible
 ```
 
 So the input to the minifier is stable and its output is not. The chunk content
 hash follows the content, so it changes with the mangled names rather than
 causing the difference.
+
+## Committed output
+
+`artifacts/` holds the intermediate JavaScript of every run of both modes, so
+the runs can be diffed without building:
+
+```sh
+diff artifacts/minified/run-0/background.*.js artifacts/minified/run-2/background.*.js
+```
+
+The build directories themselves are not committed. Most of their size is
+`stats.json` and `debug-metadata.json`, neither of which is involved here.

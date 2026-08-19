@@ -1,3 +1,3 @@
 node_modules
-dist-run-*
-dist-test
+out-minified
+out-not-minified

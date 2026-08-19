@@ -53,9 +53,11 @@ distinct background.js: 1 of 10
 reproducible
 ```
 
-So the input to the minifier is stable and its output is not. The chunk content
-hash follows the content, so it changes with the mangled names rather than
-causing the difference.
+Minifying is not the cause, though — it is what makes the difference visible.
+The sections below trace it back to a chunk hash that moves before the minifier
+runs, and to which the minifier's name mangling is exquisitely sensitive: the
+mangler orders its short names by character frequency over the whole source, so
+one changed string permutes every name.
 
 ## Committed output
 
@@ -135,9 +137,7 @@ Ruled out, each by measurement rather than by argument:
 - a persistent cache (there is none in this project)
 - scope hoisting (with `concatenateModules: false` it diverges *more* often,
   because 108 separate modules give more chances than one concatenated one)
-- any single Lynx plugin (dropping each one still diverges; dropping five at
-  once stops it, but that also shortens the build, so it reads as pressure
-  rather than cause)
+- any single Lynx Rspack plugin (see the ablations below)
 
 ## Which input to the hash moves
 
@@ -157,7 +157,44 @@ memoization cache, and `active_state` is three-valued (`true`, `false`,
 `TransitiveOnly`) — a flip between `true` and `TransitiveOnly` changes the hash
 while still emitting the same code, which is what is observed.
 
-Not reproduced with rspack alone. Four shapes were tried under the same load —
-a single large module, two entries, a barrel of re-exports across two layers,
-and 4501 generated modules in two layers with `builtin:swc-loader` — all stable
-over 25 to 40 builds each.
+## Reproducing with Rspack alone
+
+`rspack.config.mjs` is a plain Rspack config — the only import in it is
+`@rspack/core`. Neither Rsbuild nor Rspeedy runs at build time; `emit-config.mjs`
+generated the file once and is not needed to reproduce.
+
+```sh
+for i in $(seq 1 10); do yes > /dev/null & done   # the race needs a busy machine
+node run-standalone.mjs 40
+kill %1 %2 %3 %4 %5 %6 %7 %8 %9 %10
+```
+
+```
+distinct chunk hashes: 15 of 40
+```
+
+Each build runs in its own process and is compared on `chunk.hash`, so the
+result does not depend on filenames or on the minifier.
+
+## What the reproduction needs
+
+Each of these was established by removing it and running 35 builds under the
+same load. Removing either one makes all 35 agree:
+
+- the two loaders from `@lynx-js/react-webpack-plugin`
+- `SourceMapDevToolPlugin`, which is Rspack's own
+
+Neither is sufficient alone: 4501 generated modules across two layers, with
+`builtin:swc-loader` and `SourceMapDevToolPlugin`, stay stable over 40 builds.
+
+The loaders are not implicated by the CPU time they spend. Replacing them with a
+loader that busy-waits — a longer build, 0.57s against 0.49s — is stable over 35
+builds. Nor is it what they write into `buildInfo`: with those writes patched
+out the build still diverges, 11 of 40.
+
+Not required, each measured the same way: every Lynx Rspack plugin, the resolve
+configuration, the per-layer `resolve.alias` rules, `parser.overrideStrict`,
+`experiments.sourceImport`, minification, `devtool`, `splitChunks`,
+`DefinePlugin`, `ProgressPlugin`, `CssExtractRspackPlugin`, and scope hoisting —
+with `concatenateModules: false` it diverges *more* often, because 108 separate
+modules give the race more chances than one concatenated module.

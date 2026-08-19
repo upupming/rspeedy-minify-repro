@@ -12,3 +12,10 @@ rspack-*/src/
 rspack-*/dist*
 real-input.js
 input-*.js
+standalone-dist/
+standalone-*/
+emit-out/
+dumped/
+dump-out/
+pb/
+config-dump.json

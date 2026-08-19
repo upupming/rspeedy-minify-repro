@@ -75,5 +75,16 @@ export default {
   output: { path: path.resolve(import.meta.dirname, process.env.OUT ?? 'dist'), filename: '[name].[contenthash:8].js' },
   resolve: { modules: [path.join(root, 'node_modules'), 'node_modules'] },
   optimization: { minimize: false, concatenateModules: false },
-  plugins: [new Probe()],
+  plugins: [
+    new rspack.SourceMapDevToolPlugin({
+      filename: '[file].map[query]',
+      moduleFilenameTemplate: 'file://[absolute-resource-path]',
+      fallbackModuleFilenameTemplate: 'file://[absolute-resource-path]?[hash]',
+      module: true,
+      columns: true,
+      noSources: false,
+      publicPath: '/',
+    }),
+    new Probe(),
+  ],
 }

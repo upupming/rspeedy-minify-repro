@@ -68,3 +68,43 @@ diff artifacts/minified/run-0/background.*.js artifacts/minified/run-2/backgroun
 
 The build directories themselves are not committed. Most of their size is
 `stats.json` and `debug-metadata.json`, neither of which is involved here.
+
+## Where it comes from
+
+Two more scripts narrow it down.
+
+`swc-repro.mjs` calls the minifier directly, without a build. `@rspack/core`
+exposes the one the build uses through `experiments.swc.minify`.
+
+```sh
+node swc-repro.mjs                                       # background.js
+node swc-repro.mjs artifacts/not-minified/run-0/main-thread.js
+```
+
+```
+distinct outputs: 1 of 10
+the minifier is deterministic for this input
+```
+
+The same holds across processes and when two files are minified concurrently.
+
+`capture.mjs` runs a full build with a plugin that writes every JavaScript asset
+just before the minimize stage, so two builds can be compared on what the
+minifier is given rather than on what it produces.
+
+```sh
+node capture.mjs out-capture-a
+node capture.mjs out-capture-b
+```
+
+Comparing a pair of runs whose output differs, with the two per-build
+identifiers normalized:
+
+```
+run1  before minify=5a1ac632c8  after minify=4ad8e0d494
+run2  before minify=5a1ac632c8  after minify=f11f03ccdf
+```
+
+The input is the same and the output is not. Called on its own the minifier is
+deterministic for that same input, so the difference comes from how the build
+invokes it, not from the minifier itself.

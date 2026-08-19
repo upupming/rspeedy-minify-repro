@@ -1,0 +1,58 @@
+{
+ "resourcePath": "/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react/runtime/lib/snapshot/snapshot/definition.js",
+ "options": {
+  "mode": "production",
+  "compat": false,
+  "pluginName": "react:webpack",
+  "filename": "/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react/runtime/lib/snapshot/snapshot/definition.js",
+  "cssScope": {
+   "mode": "none",
+   "filename": "node_modules/@lynx-js/react/runtime/lib/snapshot/snapshot/definition.js"
+  },
+  "sourceFileName": "/Users/bytedance/projects/rspeedy-minify-repro/node_modules/@lynx-js/react/runtime/lib/snapshot/snapshot/definition.js",
+  "sourcemap": true,
+  "sourceMapColumns": true,
+  "inlineSourcesContent": true,
+  "snapshot": {
+   "preserveJsx": false,
+   "target": "JS",
+   "enableUiSourceMap": false,
+   "runtimePkg": "@lynx-js/react/internal",
+   "filename": "node_modules/@lynx-js/react/runtime/lib/snapshot/snapshot/definition.js",
+   "isDynamicComponent": false,
+   "isExternalBundle": false,
+   "legacySlot": false,
+   "jsxImportSource": "@lynx-js/react"
+  },
+  "elementTemplate": false,
+  "engineVersion": "3.2",
+  "syntaxConfig": "{\"syntax\":\"ecmascript\",\"decorators\":true,\"tsx\":true,\"jsx\":true}",
+  "worklet": {
+   "filename": "node_modules/@lynx-js/react/runtime/lib/snapshot/snapshot/definition.js",
+   "runtimePkg": "@lynx-js/react/internal",
+   "target": "JS"
+  },
+  "directiveDCE": {
+   "target": "JS"
+  },
+  "defineDCE": {
+   "define": {
+    "__LEPUS__": "false",
+    "__MAIN_THREAD__": "false",
+    "__JS__": "true",
+    "__BACKGROUND__": "true",
+    "__REACTLYNX2__": "false",
+    "__REACTLYNX3__": "true"
+   }
+  },
+  "experimental_transformBuiltinAttributeNames": false,
+  "refresh": false,
+  "isModule": "unknown",
+  "dynamicImport": {
+   "layer": "react__background",
+   "runtimePkg": "@lynx-js/react/internal"
+  },
+  "shake": false
+ },
+ "content": "// Copyright 2024 The Lynx Authors. All rights reserved.\n// Licensed under the Apache License Version 2.0 that can be found in the\n// LICENSE file in the root directory of this source tree.\n/**\n * Snapshot manager that manages all snapshot definitions.\n */\nimport { DEFAULT_ENTRY_NAME } from './constants.js';\nimport { DynamicPartType, __DynamicPartChildren_0, __DynamicPartListSlotV2_0, __DynamicPartSlotV2_0, } from './dynamicPartType.js';\nimport { snapshotCreateList } from './list.js';\nimport { devOnlySentSnapshots, snapshotCreatorMap, snapshotCreatorRuntime } from './snapshotCreatorMap.js';\nimport { updateSpread } from './spread.js';\nimport { entryUniqID, getCloneSnapshotInfo } from './utils.js';\nimport { SnapshotOperation, __globalSnapshotPatch } from '../lifecycle/patch/snapshotPatch.js';\nexport let __page;\nexport let __pageId = 0;\nexport function setupPage(page) {\n    __page = page;\n    __pageId = __GetElementUniqueID(page);\n}\nexport function clearPage() {\n    __page = undefined;\n    __pageId = 0;\n}\n/**\n * Manager for snapshot definitions\n */\nexport const snapshotManager = {\n    values: /* @__PURE__ */ new Map([\n        [\n            'root',\n            {\n                create() {\n                    /* v8 ignore start */\n                    if (__JS__ && !__DEV__) {\n                        return [];\n                    }\n                    /* v8 ignore stop */\n                    return [__page];\n                },\n                update: [],\n                slot: __DynamicPartChildren_0,\n                isListHolder: false,\n                cssId: 0,\n            },\n        ],\n        [\n            'wrapper',\n            {\n                create() {\n                    /* v8 ignore start */\n                    if (__JS__ && !__DEV__) {\n                        return [];\n                    }\n                    /* v8 ignore stop */\n                    return [__CreateWrapperElement(__pageId)];\n                },\n                update: [],\n                slot: __DynamicPartChildren_0,\n                isListHolder: false,\n            },\n        ],\n        [\n            null,\n            {\n                create() {\n                    /* v8 ignore start */\n                    if (__JS__ && !__DEV__) {\n                        return [];\n                    }\n                    /* v8 ignore stop */\n                    return [__CreateRawText('')];\n                },\n                update: [\n                    ctx => {\n                        /* v8 ignore start */\n                        if (__JS__ && !__DEV__) {\n                            return;\n                        }\n                        /* v8 ignore stop */\n                        if (ctx.__elements) {\n                            __SetAttribute(ctx.__elements[0], 'text', ctx.__values[0]);\n                        }\n                    },\n                ],\n                slot: [],\n                isListHolder: false,\n            },\n        ],\n    ]),\n};\n/**\n * Creates a new snapshot definition and adds it to the manager\n */\nexport function createSnapshot(uniqID, create, update, slot, cssId, entryName, refAndSpreadIndexes, isLazySnapshotSupported = false) {\n    if (!isLazySnapshotSupported) {\n        uniqID = entryUniqID(uniqID, entryName);\n    }\n    // For Lazy Bundle, their entryName is not DEFAULT_ENTRY_NAME.\n    // We need to set the entryName correctly for HMR\n    if (__DEV__ && __JS__ && __globalSnapshotPatch && entryName && entryName !== DEFAULT_ENTRY_NAME\n        // `uniqID` will be `https://example.com/main.lynx.bundle:__snapshot_835da_eff1e_1` when loading a standalone lazy bundle after hydration.\n        && !uniqID.includes(':')\n        && devOnlySentSnapshots.has(uniqID)) {\n        __globalSnapshotPatch.push(SnapshotOperation.DEV_ONLY_SetSnapshotEntryName, uniqID, entryName);\n        devOnlySentSnapshots.delete(uniqID);\n    }\n    const s = { create, update, slot, cssId, entryName, refAndSpreadIndexes };\n    snapshotManager.values.set(uniqID, s);\n    if (slot && slot[0]) {\n        const v = slot[0][0];\n        if (v === DynamicPartType.ListChildren || v === DynamicPartType.ListSlotV2) {\n            s.isListHolder = true;\n        }\n        s.isSlotV2 = slot.every(([type]) => type === DynamicPartType.SlotV2 || type === DynamicPartType.ListSlotV2);\n    }\n    return uniqID;\n}\nexport function createRuntimeSnapshot(type) {\n    const isListHolder = type === 'list';\n    snapshotManager.values.set(type, {\n        create(snapshotInstance) {\n            /* v8 ignore start */\n            if (__JS__ && !__DEV__) {\n                return [];\n            }\n            // Keep runtime-created element creation consistent with the compiled snapshot path\n            // (see swc_plugin_snapshot tag dispatch).\n            switch (type) {\n                case 'view':\n                    return [__CreateView(__pageId)];\n                case 'scroll-view':\n                case 'x-scroll-view':\n                    return [__CreateScrollView(__pageId)];\n                case 'image':\n                    return [__CreateImage(__pageId)];\n                case 'text':\n                    return [__CreateText(__pageId)];\n                case 'wrapper':\n                    return [__CreateWrapperElement(__pageId)];\n                case 'list':\n                    return [snapshotCreateList(__pageId, snapshotInstance, 0)];\n                case 'frame':\n                    return [__CreateFrame(__pageId)];\n                default:\n                    return [__CreateElement(type, __pageId)];\n            }\n            /* v8 ignore stop */\n        },\n        update: [\n            (ctx, index, oldValue) => {\n                /* v8 ignore start */\n                if (__JS__ && !__DEV__) {\n                    return;\n                }\n                /* v8 ignore stop */\n                updateSpread(ctx, index, oldValue, 0, false);\n            },\n        ],\n        slot: isListHolder ? __DynamicPartListSlotV2_0 : __DynamicPartSlotV2_0,\n        isListHolder,\n        refAndSpreadIndexes: [0],\n    });\n}\nexport function createCloneSnapshot(type) {\n    /* v8 ignore start */\n    if (snapshotManager.values.has(type)) {\n        return;\n    }\n    /* v8 ignore stop */\n    const cloneSnapshotInfo = getCloneSnapshotInfo(type);\n    if (!cloneSnapshotInfo) {\n        throw new Error(`Invalid clone snapshot type: ${type}`);\n    }\n    const { originalType, cloneSpreadIndex } = cloneSnapshotInfo;\n    // get the original snapshot definition\n    let originalDef = snapshotManager.values.get(originalType);\n    if (!originalDef) {\n        snapshotCreatorMap[originalType]?.(originalType, snapshotCreatorRuntime);\n        originalDef = snapshotManager.values.get(originalType);\n    }\n    if (!originalDef) {\n        throw new Error('Snapshot not found: ' + originalType);\n    }\n    // clone the original snapshot definition with spread updater\n    const originalDefUpdate = originalDef.update ?? [];\n    const update = originalDefUpdate.slice();\n    update[cloneSpreadIndex] = (ctx, index, oldValue) => {\n        /* v8 ignore start */\n        if (__JS__ && !__DEV__) {\n            return;\n        }\n        /* v8 ignore stop */\n        updateSpread(ctx, index, oldValue, 0, false);\n    };\n    const s = {\n        ...originalDef,\n        update,\n        refAndSpreadIndexes: [\n            ...(originalDef.refAndSpreadIndexes ?? []),\n            cloneSpreadIndex,\n        ],\n    };\n    snapshotManager.values.set(type, s);\n}\n//# sourceMappingURL=definition.js.map"
+}

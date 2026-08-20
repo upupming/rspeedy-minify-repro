@@ -218,12 +218,24 @@ call hits the cache is not stable, so the emitted map is not either.
 Fix: give the substituted value the span of the expression it replaces, which is
 what the neighbouring `typeof` branch already does — swc-project/swc#12129.
 
-With that patch, built into `@lynx-js/react-transform` and measured the same way:
+With that patch built into `@lynx-js/react-transform`, and the unpatched build
+of the same commit as the control, all three levels agree:
 
-| | transform, 400 calls | full build, 40 runs |
-| --- | --- | --- |
-| before | 2 distinct maps | 14 distinct chunk hashes |
-| after | 1 | 1 |
+| | transform, 400 calls | Rspack config, 40 builds | Rspeedy, 40 builds |
+| --- | --- | --- | --- |
+| before | 2 distinct maps | 14 distinct chunk hashes | 10 distinct bundles |
+| after | 1 | 1 | 1 |
+
+The Rspeedy column is the one that matters to a user: `createRspeedy(...)` plus
+`rspeedy.build()`, comparing the bytes of the emitted `main.lynx.bundle`.
+
+```sh
+for i in $(seq 1 10); do yes > /dev/null & done
+USE_NAPI=1 node rspeedy-verify.mjs 40
+```
+
+Both columns were measured with the same napi build path, under the same load,
+so the difference is the patch and not the build flavour.
 
 ## Reproducing with Rspack alone
 
